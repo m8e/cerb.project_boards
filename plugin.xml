@@ -147,5 +147,19 @@
 			</params>
 		</extension>
 		
+		<!-- Workspace Tabs -->
+		
+		<extension point="cerberusweb.ui.workspace.tab">
+			<id>core.workspace.tab.board</id>
+			<name>Board Workspace Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WorkspaceTab_Board</name>
+			</class>
+			<params>
+				<param key="label" value="Project Board" />
+			</params>
+		</extension>
+		
 	</extensions>
 </plugin>
