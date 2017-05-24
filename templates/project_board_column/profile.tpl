@@ -2,16 +2,7 @@
 {$page_context_id = $project_board_column->id}
 {$is_writeable = Context_ProjectBoardColumn::isWriteableByActor($project_board_column, $active_worker)}
 
-<div style="float:left">
-	<h1>{$project_board_column->name}</h1>
-</div>
-
-<div style="float:right;">
-{$ctx = Extension_DevblocksContext::get($page_context)}
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
-</div>
-
-<div style="clear:both;"></div>
+<h1>{$project_board_column->name}</h1>
 
 <div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
@@ -24,14 +15,6 @@
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 		</span>
 		
-		<!-- Macros -->
-		{*
-		{if $is_writeable}
-		{devblocks_url assign=return_url full=true}c=profiles&type=project_board_column&id={$page_context_id}-{$project_board_column->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.project_board_column" return_url=$return_url}
-		{/if}
-		*}
-		
 		<!-- Edit -->
 		{if $is_writeable}
 		<button type="button" id="btnDisplayProjectBoardColumnEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
@@ -42,7 +25,6 @@
 		<small>
 		{$translate->_('common.keyboard')|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		(<b>1-9</b>) change tab
 		</small>
 	{/if}

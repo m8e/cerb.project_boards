@@ -210,8 +210,12 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = array($ids);
+		
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(empty($ids))
 			return;
@@ -231,6 +235,27 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 				)
 			)
 		);
+		
+		return true;
+	}
+	
+	static function deleteByProjectIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids))
+			return;
+		
+		foreach($ids as $id) {
+			if(false == ($columns = DAO_ProjectBoardColumn::getByBoardId($id)))
+				continue;
+			
+			DAO_ProjectBoardColumn::delete(array_keys($columns));
+		}
 		
 		return true;
 	}

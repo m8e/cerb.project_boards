@@ -201,14 +201,21 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = array($ids);
+		
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(empty($ids))
 			return;
 		
+		// Delete project columns
+		DAO_ProjectBoardColumn::deleteByProjectIds($ids);
+
+		// Delete boards
 		$ids_list = implode(',', $ids);
-		
 		$db->ExecuteMaster(sprintf("DELETE FROM project_board WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
@@ -866,8 +873,34 @@ class View_ProjectBoard extends C4_AbstractView implements IAbstractView_Subtota
 	}
 };
 
-class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
 	const ID = 'cerberusweb.contexts.project.board';
+	
+	function autocomplete($term, $query=null) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		$list = array();
+		
+		list($results, $null) = DAO_ProjectBoard::search(
+			array(),
+			array(
+				new DevblocksSearchCriteria(SearchFields_ProjectBoard::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
+			),
+			25,
+			0,
+			SearchFields_ProjectBoard::NAME,
+			true,
+			false
+		);
+
+		foreach($results AS $row){
+			$entry = new stdClass();
+			$entry->label = $row[SearchFields_ProjectBoard::NAME];
+			$entry->value = $row[SearchFields_ProjectBoard::ID];
+			$list[] = $entry;
+		}
+		
+		return $list;
+	}
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read

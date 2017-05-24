@@ -52,7 +52,7 @@
 </div>
 
 <div style="margin:5px 0px 10px 0px;">
-	<button type="button" class="chooser-behavior" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="disabled:n event:event.macro.*"><span class="glyphicons glyphicons-circle-plus"></span> {'common.behaviors'|devblocks_translate|capitalize}</button>
+	<button type="button" class="chooser-behavior" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="" data-query-required="disabled:n private:n event:event.macro.*"><span class="glyphicons glyphicons-circle-plus"></span> {'common.behaviors'|devblocks_translate|capitalize}</button>
 </div>
 
 {if !empty($custom_fields)}
@@ -92,6 +92,8 @@ $(function() {
 	var $popup = genericAjaxPopupFind($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
+		var $behaviors = $popup.find('div.behaviors');
+		
 		$popup.dialog('option','title',"{'projects.common.board.column'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 
 		// Buttons
@@ -104,21 +106,34 @@ $(function() {
 		// Choosers
 		$popup.find('.chooser-abstract').cerbChooserTrigger()
 		
+		// Abstract delete
+		$behaviors.on('click', 'span.glyphicons-circle-remove', function(e) {
+			var $this = $(this);
+			e.stopPropagation();
+			
+			// Two step confirm
+			if(!$this.attr('data-delete')) {
+				$this
+					.css('color', 'red')
+					.attr('data-delete', 'true')
+				;
+			} else {
+				$this.closest('fieldset').remove();
+			}
+		});
+		
 		// Behavior chooser
 		$popup.find('.chooser-behavior')
 			.click(function() {
 				var $trigger = $(this);
 				var context = $trigger.attr('data-context');
 				var q = $trigger.attr('data-query');
+				var qr = $trigger.attr('data-query-required');
 				var single = $trigger.attr('data-single') != null ? '1' : '';
 				var width = $(window).width()-100;
-				var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q) + '&single=' + encodeURIComponent(single),null,true,width);
-				
-				var $behaviors = $popup.find('div.behaviors');
+				var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q) + '&qr=' + encodeURIComponent(qr) + '&single=' + encodeURIComponent(single),null,true,width);
 				
 				$behaviors.find('.cerb-peek-trigger').cerbPeekTrigger();
-				
-				// [TODO] Abstract delete
 				
 				$chooser.one('chooser_save', function(event) {
 					for(value in event.values) {
@@ -131,20 +146,9 @@ $(function() {
 						
 						var $fieldset = $('<fieldset class="peek black" style="position:relative;" />');
 						var $hidden = $('<input type="hidden" name="behavior_ids[]" />').val(behavior_id).appendTo($fieldset);
-						var $remove = $('<span class="glyphicons glyphicons-circle-remove" style="position:absolute;top:0;right:0;cursor:pointer;"/>').click(function(e) {
-							var $this = $(this);
-							e.stopPropagation();
-							
-							// Two step confirm
-							if(!$this.attr('data-delete')) {
-								$this
-									.css('color', 'red')
-									.attr('data-delete', 'true')
-								;
-							} else {
-								$this.closest('fieldset').remove();
-							}
-						}).appendTo($fieldset);
+						var $remove = $('<span class="glyphicons glyphicons-circle-remove" style="position:absolute;top:0;right:0;cursor:pointer;"/>')
+							.appendTo($fieldset)
+						;
 						
 						var $legend = $('<legend/>')
 							.appendTo($fieldset)

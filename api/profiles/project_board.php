@@ -192,9 +192,6 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		
 		$tpl->assign('board', $board);
 		
-		$columns = $board->getColumns();
-		$tpl->assign('columns', $columns);
-		
 		$contexts = Extension_DevblocksContext::getAll(false, 'links');
 		$tpl->assign('contexts', $contexts);
 		

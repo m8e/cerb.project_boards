@@ -70,7 +70,7 @@ div.cerb-board div.cerb-board-column div.cerb-board-card {
 	border: 1px solid rgb(230,230,230);
 	display: inline-block;
 	width: 280px;
-	min-height: 100px;
+	min-height: 50px;
 	margin: 5px;
 	padding: 0;
 	cursor: move;
@@ -115,6 +115,8 @@ div.cerb-board div.cerb-board-column div.cerb-board-card div.cerb-board-card-typ
 {/foreach}
 {/capture}
 
+{$columns = $board->getColumns()}
+
 <div>
 	<div id="board{$tab->id}" class="cerb-board">
 		<div style="width:100%;overflow-x:auto;">
@@ -142,6 +144,8 @@ div.cerb-board div.cerb-board-column div.cerb-board-card div.cerb-board-card-typ
 $(function() {
 	var $board = $('#board{$tab->id}');
 	
+	document.title = "{$board->name|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
+	
 	var $menu = $board.siblings('ul.menu')
 		.menu()
 		// Catch menu item clicks
@@ -161,14 +165,12 @@ $(function() {
 			var from_context_id = $menu.attr('data-column-id');
 			var $column = $board.find('div.cerb-board-column[data-column-id=' + from_context_id + ']');
 			
-			var q = '  links.project_board_column:!(board.id:{$board->id}) ';
+			var query_req = 'links.project_board_column:!(board.id:{$board->id})';
 			var query = $target.attr('data-query');
-			if(query.length > 0)
-				q = q + query + ' ';
 			
 			$menu.attr('data-column-id', null);
 			
-			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&link_context=' + from_context + '&link_context_id=' + from_context_id + '&q=' + encodeURIComponent(q),null,false,'90%');
+			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&link_context=' + from_context + '&link_context_id=' + from_context_id + '&q=' + encodeURIComponent(query) + '&qr=' + encodeURIComponent(query_req),null,false,'90%');
 			$popup.one('chooser_save', function(event) {
 				event.stopPropagation();
 				
